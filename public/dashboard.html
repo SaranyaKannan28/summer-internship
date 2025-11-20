@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Management - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💰 Salary Manager</div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="salaries.html">Manage Salaries</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+                <li><a href="budget.html">Budget</a></li>
+            </ul>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Welcome to Salary Management System</h1>
+            <p>Manage employee salaries efficiently and effectively</p>
+            <div class="hero-buttons">
+                <a href="salaries.html" class="btn btn-primary">Add New Salary</a>
+                <a href="reports.html" class="btn btn-secondary">View Reports</a>
+                <a href="budget.html" class="btn btn-secondary">Manage Budget</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Cards -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card stat-card-gradient-1">
+                    <div class="stat-icon">💵</div>
+                    <div class="stat-info">
+                        <h3 id="totalSalaries">₹0</h3>
+                        <p>Total Salaries Paid</p>
+                        <span class="stat-change positive" id="totalChange">+0%</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-gradient-2">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3 id="totalEmployees">0</h3>
+                        <p>Employees Paid</p>
+                        <span class="stat-change positive" id="employeeChange">+0</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-gradient-3">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3 id="totalRecords">0</h3>
+                        <p>Total Records</p>
+                        <span class="stat-change positive" id="recordsChange">+0</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-gradient-4">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <h3 id="thisMonth">₹0</h3>
+                        <p>This Month</p>
+                        <span class="stat-change positive" id="monthChange">+0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Enhanced Widgets -->
+    <section class="widgets-section">
+        <div class="container">
+            <div class="widgets-grid">
+                <!-- Upcoming Payments -->
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3>📌 Upcoming Payments</h3>
+                        <select id="upcomingPeriod" onchange="loadUpcomingPayments()">
+                            <option value="7">This Week</option>
+                            <option value="30" selected>This Month</option>
+                        </select>
+                    </div>
+                    <div class="widget-content" id="upcomingPayments">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Top Paid Employees -->
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3>🏆 Top Paid Employees</h3>
+                        <span class="widget-subtitle">Current Month</span>
+                    </div>
+                    <div class="widget-content" id="topEmployees">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Budget Overview -->
+                <div class="widget-card widget-card-wide">
+                    <div class="widget-header">
+                        <h3>💰 Budget Overview</h3>
+                        <a href="budget.html" class="btn btn-small">Manage Budget</a>
+                    </div>
+                    <div class="widget-content" id="budgetOverview">
+                        <div class="budget-display">
+                            <div class="budget-item">
+                                <span class="budget-label">Monthly Budget</span>
+                                <span class="budget-value" id="monthlyBudget">₹0</span>
+                            </div>
+                            <div class="budget-item">
+                                <span class="budget-label">Spent This Month</span>
+                                <span class="budget-value" id="monthlySpent">₹0</span>
+                            </div>
+                            <div class="budget-item">
+                                <span class="budget-label">Remaining</span>
+                                <span class="budget-value budget-remaining" id="monthlyRemaining">₹0</span>
+                            </div>
+                            <div class="budget-item">
+                                <span class="budget-label">Utilization</span>
+                                <span class="budget-value" id="budgetUtilization">0%</span>
+                            </div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="budgetProgressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Chart -->
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3>💳 Payment Methods</h3>
+                        <span class="widget-subtitle">This Month</span>
+                    </div>
+                    <div class="widget-content" id="paymentMethods">
+                        <div id="methodsChart" class="mini-chart"></div>
+                    </div>
+                </div>
+
+                <!-- Year over Year Comparison -->
+                <div class="widget-card widget-card-wide">
+                    <div class="widget-header">
+                        <h3>📈 Year-over-Year Comparison</h3>
+                        <span class="widget-subtitle">Monthly Average</span>
+                    </div>
+                    <div class="widget-content" id="yoyComparison">
+                        <div id="yoyChart" class="comparison-chart"></div>
+                    </div>
+                </div>
+
+                <!-- Salary Growth Trend -->
+                <div class="widget-card widget-card-wide">
+                    <div class="widget-header">
+                        <h3>📊 Salary Growth Trend</h3>
+                        <span class="widget-subtitle">Last 6 Months</span>
+                    </div>
+                    <div class="widget-content" id="growthTrend">
+                        <div id="growthChart" class="trend-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Salaries -->
+    <section class="recent-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Recent Salary Payments</h2>
+                <a href="salaries.html" class="btn btn-primary">View All</a>
+            </div>
+            <div class="table-wrapper">
+                <table id="recentTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTableBody">
+                        <tr>
+                            <td colspan="6" class="loading-cell">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions (Floating) -->
+    <div class="quick-actions">
+        <button class="quick-action-btn" onclick="window.location.href='salaries.html'" title="Add Salary">
+            ➕
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Salary Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/login.js"> </script>
+</body>
+</html>

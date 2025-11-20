@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💰 Salary Manager</div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="salaries.html">Manage Salaries</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="analytics.html" class="active">Analytics</a></li>
+                <li><a href="budget.html">Budget</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+        <div class="page-header">
+            <h1>Analytics Dashboard</h1>
+            <p>Visual insights into salary data</p>
+        </div>
+
+        <!-- Time Period Selector -->
+        <div class="filter-card">
+            <h3>Select Time Period</h3>
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label for="analyticsStartDate">From Date</label>
+                    <input type="date" id="analyticsStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="analyticsEndDate">To Date</label>
+                    <input type="date" id="analyticsEndDate">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="loadAnalytics()">Load Analytics</button>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="stats-grid">
+            <div class="stat-card stat-card-gradient-1">
+                <div class="stat-icon">💵</div>
+                <div class="stat-info">
+                    <h3 id="analyticsTotalAmount">₹0</h3>
+                    <p>Total Disbursed</p>
+                </div>
+            </div>
+            <div class="stat-card stat-card-gradient-2">
+                <div class="stat-icon">📈</div>
+                <div class="stat-info">
+                    <h3 id="analyticsHighest">₹0</h3>
+                    <p>Highest Payment</p>
+                </div>
+            </div>
+            <div class="stat-card stat-card-gradient-3">
+                <div class="stat-icon">📉</div>
+                <div class="stat-info">
+                    <h3 id="analyticsLowest">₹0</h3>
+                    <p>Lowest Payment</p>
+                </div>
+            </div>
+            <div class="stat-card stat-card-gradient-4">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-info">
+                    <h3 id="analyticsAverage">₹0</h3>
+                    <p>Average Payment</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Salary Type Distribution -->
+            <div class="chart-card">
+                <h3>Salary Type Distribution</h3>
+                <div class="chart-container" id="typeChart">
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #667eea;"></span>
+                            <span>Monthly</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #667eea;" data-type="Monthly"></div>
+                        </div>
+                        <span class="chart-value" data-value="Monthly">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #764ba2;"></span>
+                            <span>Weekly</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #764ba2;" data-type="Weekly"></div>
+                        </div>
+                        <span class="chart-value" data-value="Weekly">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #f093fb;"></span>
+                            <span>Bonus</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #f093fb;" data-type="Bonus"></div>
+                        </div>
+                        <span class="chart-value" data-value="Bonus">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #4facfe;"></span>
+                            <span>Commission</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #4facfe;" data-type="Commission"></div>
+                        </div>
+                        <span class="chart-value" data-value="Commission">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Distribution -->
+            <div class="chart-card">
+                <h3>Payment Methods</h3>
+                <div class="chart-container" id="methodChart">
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #11998e;"></span>
+                            <span>Bank Transfer</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #11998e;" data-method="Bank Transfer"></div>
+                        </div>
+                        <span class="chart-value" data-value="Bank Transfer">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #38ef7d;"></span>
+                            <span>Cash</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #38ef7d;" data-method="Cash"></div>
+                        </div>
+                        <span class="chart-value" data-value="Cash">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #fa709a;"></span>
+                            <span>Cheque</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #fa709a;" data-method="Cheque"></div>
+                        </div>
+                        <span class="chart-value" data-value="Cheque">0</span>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">
+                            <span class="color-box" style="background: #fee140;"></span>
+                            <span>UPI</span>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="width: 0%; background: #fee140;" data-method="UPI"></div>
+                        </div>
+                        <span class="chart-value" data-value="UPI">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Employees -->
+        <div class="table-card">
+            <h3>Top 10 Employees by Total Salary</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Employee Name</th>
+                            <th>Total Amount Received</th>
+                            <th>Number of Payments</th>
+                            <th>Average Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topEmployeesBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                <p>Load analytics to view data</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="chart-card">
+            <h3>Monthly Salary Trend</h3>
+            <div id="monthlyTrend" class="trend-container">
+                <p style="text-align: center; padding: 40px; color: #999;">
+                    Load analytics to view monthly trends
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Salary Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/analytics.js"></script>
+</body>
+</html>

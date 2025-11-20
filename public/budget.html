@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💰 Salary Manager</div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="salaries.html">Manage Salaries</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+                <li><a href="budget.html" class="active">Budget</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+        <div class="page-header">
+            <h1>Budget Management</h1>
+            <button class="btn btn-primary" onclick="openBudgetModal()">+ Set New Budget</button>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <!-- Budget Overview Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3 id="totalBudget">₹0</h3>
+                    <p>Total Annual Budget</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💵</div>
+                <div class="stat-info">
+                    <h3 id="totalSpent">₹0</h3>
+                    <p>Total Spent (YTD)</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💳</div>
+                <div class="stat-info">
+                    <h3 id="totalRemaining">₹0</h3>
+                    <p>Remaining Budget</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <h3 id="utilizationPercent">0%</h3>
+                    <p>Budget Utilization</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Budget Tracker -->
+        <div class="table-card">
+            <h3>Monthly Budget Tracking</h3>
+            <div class="budget-month-selector">
+                <button class="btn btn-secondary" onclick="changeMonth(-1)">← Previous</button>
+                <h4 id="currentMonthYear">Loading...</h4>
+                <button class="btn btn-secondary" onclick="changeMonth(1)">Next →</button>
+            </div>
+
+            <div class="budget-details">
+                <div class="budget-detail-card">
+                    <h4>Monthly Budget</h4>
+                    <p class="budget-amount" id="currentMonthBudget">₹0</p>
+                </div>
+                <div class="budget-detail-card">
+                    <h4>Spent</h4>
+                    <p class="budget-amount spent" id="currentMonthSpent">₹0</p>
+                </div>
+                <div class="budget-detail-card">
+                    <h4>Remaining</h4>
+                    <p class="budget-amount remaining" id="currentMonthRemaining">₹0</p>
+                </div>
+                <div class="budget-detail-card">
+                    <h4>Status</h4>
+                    <p class="budget-status" id="currentMonthStatus">
+                        <span class="status-badge on-track">On Track</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="budget-progress-section">
+                <div class="progress-bar-large">
+                    <div class="progress-fill-large" id="monthProgressBar" style="width: 0%">
+                        <span id="monthProgressText">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department-wise Budget -->
+        <div class="table-card">
+            <h3>Department-wise Budget Allocation</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Budget</th>
+                            <th>Spent</th>
+                            <th>Remaining</th>
+                            <th>Utilization</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departmentBudgetBody">
+                        <tr>
+                            <td colspan="7" class="loading-cell">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Budget Forecast -->
+        <div class="table-card">
+            <h3>Budget Forecast & Variance Analysis</h3>
+            <div class="forecast-grid">
+                <div class="forecast-card">
+                    <h4>Projected Spending</h4>
+                    <p class="forecast-value" id="projectedSpending">₹0</p>
+                    <small>Based on current trend</small>
+                </div>
+                <div class="forecast-card">
+                    <h4>Expected Variance</h4>
+                    <p class="forecast-value variance" id="expectedVariance">₹0</p>
+                    <small id="varianceLabel">Within budget</small>
+                </div>
+                <div class="forecast-card">
+                    <h4>Avg Monthly Spend</h4>
+                    <p class="forecast-value" id="avgMonthlySpend">₹0</p>
+                    <small>Last 3 months</small>
+                </div>
+                <div class="forecast-card">
+                    <h4>Burn Rate</h4>
+                    <p class="forecast-value" id="burnRate">0%</p>
+                    <small>Monthly average</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget History -->
+        <div class="table-card">
+            <h3>Budget History</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Budget</th>
+                            <th>Actual Spent</th>
+                            <th>Variance</th>
+                            <th>Utilization</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="budgetHistoryBody">
+                        <tr>
+                            <td colspan="6" class="loading-cell">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div class="modal" id="budgetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="budgetModalTitle">Set Budget</h2>
+                <button class="close-btn" onclick="closeBudgetModal()">&times;</button>
+            </div>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="budgetMonth">Month *</label>
+                    <input type="month" id="budgetMonth" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="budgetAmount">Budget Amount *</label>
+                    <input type="number" id="budgetAmount" step="0.01" placeholder="Enter budget amount" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="budgetDepartment">Department (Optional)</label>
+                    <select id="budgetDepartment">
+                        <option value="">All Departments</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="budgetNotes">Notes</label>
+                    <textarea id="budgetNotes" rows="3" placeholder="Additional notes..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Save Budget</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeBudgetModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Salary Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/budget.js"></script>
+</body>
+</html>

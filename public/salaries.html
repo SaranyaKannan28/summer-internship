@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Salaries</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💰 Salary Manager</div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="salaries.html" class="active">Manage Salaries</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+                <li><a href="budget.html">Budget</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+        <div class="page-header">
+            <h1>Manage Salaries</h1>
+            <button class="btn btn-primary" onclick="openModal()">+ Add New Salary</button>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <!-- Filters -->
+        <div class="filter-card">
+            <h3>Filter Records</h3>
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label for="filterStartDate">Start Date</label>
+                    <input type="date" id="filterStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="filterEndDate">End Date</label>
+                    <input type="date" id="filterEndDate">
+                </div>
+                <div class="form-group">
+                    <label for="filterType">Type</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Bonus">Bonus</option>
+                        <option value="Commission">Commission</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterEmployee">Employee</label>
+                    <input type="text" id="filterEmployee" placeholder="Search employee...">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Salaries Table -->
+        <div class="table-card">
+            <div id="loadingState" class="loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>Loading salaries...</p>
+            </div>
+
+            <div class="table-wrapper" id="tableWrapper">
+                <table id="salaryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Paid To</th>
+                            <th>Paid On</th>
+                            <th>Method</th>
+                            <th>Period</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salaryTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <div class="empty-state-icon">📋</div>
+                <h3>No salary records found</h3>
+                <p>Add your first salary record to get started</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="salaryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Salary</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="salaryForm">
+                <input type="hidden" id="salaryId">
+                
+                <div class="form-group">
+                    <label for="type">Salary Type *</label>
+                    <select id="type" required>
+                        <option value="">Select Type</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Bonus">Bonus</option>
+                        <option value="Commission">Commission</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount *</label>
+                    <input type="number" id="amount" step="0.01" placeholder="Enter amount" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paidTo">Paid To *</label>
+                    <input type="text" id="paidTo" placeholder="Employee name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paidOn">Paid On *</label>
+                    <input type="date" id="paidOn" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paidThrough">Paid Through *</label>
+                    <select id="paidThrough" required>
+                        <option value="">Select Method</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="startDate">Start Date *</label>
+                    <input type="date" id="startDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endDate">End Date *</label>
+                    <input type="date" id="endDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">Remarks</label>
+                    <textarea id="remarks" rows="3" placeholder="Additional notes..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Salary</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Salary Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/salaries.js"></script>
+</body>
+</html>
