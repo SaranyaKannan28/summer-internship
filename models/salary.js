@@ -48,7 +48,12 @@ const Salary = sequelize.define('Salary', {
   remarks: {
     type: DataTypes.TEXT,
     allowNull: true
-  }
+  },
+  userId: {
+  type: DataTypes.INTEGER,
+  allowNull: false,
+  
+}
 }, {
   tableName: 'salaries',
   timestamps: true,

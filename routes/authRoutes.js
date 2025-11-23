@@ -1,6 +1,7 @@
 import {
   registerUser,
-  loginUser
+  loginUser,
+  getProfile
 } from "../controllers/authController.js";
 
 export const handleAuthRoutes = (req, res) => {
@@ -15,9 +16,14 @@ export const handleAuthRoutes = (req, res) => {
     return;
   }
 
+  // Always define this BEFORE using it
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const pathParts = url.pathname.split("/").filter(p => p); 
-  // ['api', 'auth', 'login'] or ['api', 'auth', 'signup']
+  const pathParts = url.pathname.split("/").filter(p => p);
+  // Example: /api/auth/login → ["api", "auth", "login"]
+
+  // -------------------------------
+  //          AUTH ROUTES
+  // -------------------------------
 
   // POST /api/auth/signup
   if (req.method === "POST" && pathParts[2] === "signup") {
@@ -29,7 +35,12 @@ export const handleAuthRoutes = (req, res) => {
     return loginUser(req, res);
   }
 
-  // Unknown route
+  // GET /api/auth/profile
+  if (req.method === "GET" && pathParts[2] === "profile") {
+    return getProfile(req, res);
+  }
+
+  // If no route matched
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Auth route not found" }));
 };

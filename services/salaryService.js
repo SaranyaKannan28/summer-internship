@@ -17,10 +17,18 @@ export const getAllSalaries = async (filters = {}) => {
     const whereClause = {};
 
     // Filter by date range
-    if (filters.startDate && filters.endDate) {
-      whereClause.paidOn = {
-        [Op.between]: [filters.startDate, filters.endDate]
-      };
+    if (filters.startDate || filters.endDate) {
+      whereClause.paidOn = {};
+      if (filters.startDate) {
+        const start = new Date(filters.startDate);
+        start.setHours(0, 0, 0, 0); // start of the day
+        whereClause.paidOn[Op.gte] = start;
+      }
+      if (filters.endDate) {
+        const end = new Date(filters.endDate);
+        end.setHours(23, 59, 59, 999); // end of the day
+        whereClause.paidOn[Op.lte] = end;
+      }
     }
 
     // Filter by type
@@ -28,12 +36,16 @@ export const getAllSalaries = async (filters = {}) => {
       whereClause.type = filters.type;
     }
 
-    // Filter by employee name
+    // Filter by employee email/name
     if (filters.paidTo) {
       whereClause.paidTo = {
         [Op.like]: `%${filters.paidTo}%`
       };
     }
+    if (filters.userId) {
+  whereClause.userId = filters.userId;
+}
+
 
     // Filter by payment method
     if (filters.paidThrough) {
@@ -56,11 +68,7 @@ export const getAllSalaries = async (filters = {}) => {
 export const getSalaryById = async (id) => {
   try {
     const salary = await Salary.findByPk(id);
-    
-    if (!salary) {
-      throw new Error('Salary record not found');
-    }
-    
+    if (!salary) throw new Error('Salary record not found');
     return salary;
   } catch (error) {
     throw new Error(`Failed to fetch salary: ${error.message}`);
@@ -71,11 +79,7 @@ export const getSalaryById = async (id) => {
 export const updateSalary = async (id, salaryData) => {
   try {
     const salary = await Salary.findByPk(id);
-    
-    if (!salary) {
-      throw new Error('Salary record not found');
-    }
-
+    if (!salary) throw new Error('Salary record not found');
     await salary.update(salaryData);
     return salary;
   } catch (error) {
@@ -87,11 +91,7 @@ export const updateSalary = async (id, salaryData) => {
 export const deleteSalary = async (id) => {
   try {
     const salary = await Salary.findByPk(id);
-    
-    if (!salary) {
-      throw new Error('Salary record not found');
-    }
-
+    if (!salary) throw new Error('Salary record not found');
     await salary.destroy();
     return { message: 'Salary record deleted successfully', id };
   } catch (error) {
@@ -103,11 +103,19 @@ export const deleteSalary = async (id) => {
 export const getSalaryStats = async (startDate, endDate) => {
   try {
     const whereClause = {};
-    
-    if (startDate && endDate) {
-      whereClause.paidOn = {
-        [Op.between]: [startDate, endDate]
-      };
+
+    if (startDate || endDate) {
+      whereClause.paidOn = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        whereClause.paidOn[Op.gte] = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        whereClause.paidOn[Op.lte] = end;
+      }
     }
 
     const salaries = await Salary.findAll({

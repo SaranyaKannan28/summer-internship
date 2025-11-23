@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSalaries();
     initializeForm();
 });
-
+ 
 // Initialize form submission
 const initializeForm = () => {
     const form = document.getElementById('salaryForm');

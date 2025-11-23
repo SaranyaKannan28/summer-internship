@@ -2,9 +2,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/index.js";
 
-const SECRET = "MY_SUPER_SECRET"; // Move to .env later
+const SECRET = process.env.JWT_SECRET || "MY_SUPER_SECRET"; // fallback if env not set
 
-// Parse JSON body manually
+// Utility to parse JSON body
 const getBody = req =>
   new Promise(resolve => {
     let body = "";
@@ -12,72 +12,96 @@ const getBody = req =>
     req.on("end", () => resolve(JSON.parse(body || "{}")));
   });
 
-// ---------- SIGNUP ----------
+// Utility to send error
+const sendError = (res, message, code = 401) => {
+  res.writeHead(code, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: message }));
+};
+
+// ---------------- SIGNUP ----------------
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = await getBody(req);
+    const { name, email, password, role } = await getBody(req);
 
     if (!name || !email || !password) {
-      res.writeHead(400, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "All fields required" }));
+      return sendError(res, "All fields required", 400);
     }
 
     const exists = await User.findOne({ where: { email } });
-    if (exists) {
-      res.writeHead(409, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Email already registered" }));
-    }
+    if (exists) return sendError(res, "Email already registered", 409);
 
     const hashed = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       name,
       email,
-      password: hashed
+      password: hashed,
+      role: role || "employee",
     });
 
     res.writeHead(201, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({
-      message: "User registered successfully",
-      userId: user.id
-    }));
-
+    res.end(JSON.stringify({ message: "User registered successfully", userId: user.id }));
   } catch (error) {
-    res.writeHead(500);
+    res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Signup failed", details: error.message }));
   }
 };
 
-// ---------- LOGIN ----------
+// ---------------- LOGIN ----------------
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = await getBody(req);
+    const { email, password, role } = await getBody(req);
 
     const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Invalid credentials" }));
-    }
+    if (!user) return sendError(res, "Invalid credentials");
 
     const match = await bcrypt.compare(password, user.password);
+    if (!match) return sendError(res, "Invalid credentials");
 
-    if (!match) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Invalid credentials" }));
+    // Optional role check
+    if (role && user.role !== role) {
+      return sendError(res, `User is not an ${role}`, 401);
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       SECRET,
       { expiresIn: "1d" }
     );
 
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "Login success", token }));
-
+    res.end(JSON.stringify({ message: "Login success", token, role: user.role }));
   } catch (error) {
-    res.writeHead(500);
+    res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Login failed", details: error.message }));
+  }
+};
+
+// ---------------- GET PROFILE ----------------
+export const getProfile = async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+    if (!auth) return sendError(res, "No token", 401);
+
+    const token = auth.split(" ")[1];
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, SECRET);
+    } catch (err) {
+      return sendError(res, "Invalid token", 401);
+    }
+
+    const user = await User.findByPk(decoded.id, {
+      attributes: ["id", "name", "email", "role"],
+    });
+
+    if (!user) return sendError(res, "User not found", 404);
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ user }));
+  } catch (err) {
+    console.error(err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Server error", details: err.message }));
   }
 };

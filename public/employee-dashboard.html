@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .container { max-width: 900px; margin: 60px auto; background: #fff;padding:20px;border-radius:8px; }
+    .top { display:flex; justify-content:space-between; align-items:center; }
+    .salary-table { width:100%; border-collapse: collapse; margin-top:16px; }
+    .salary-table th, .salary-table td { border:1px solid #eee; padding:8px; text-align:left; }
+    .small { font-size:0.9rem; color:#666; }
+    .right { text-align:right; }
+    .logout { background:#e53e3e;color:#fff;padding:8px 12px;border-radius:6px;border:none; cursor:pointer;}
+    #loading { display:none; margin-top:12px; }
+    #noRecords { display:none; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <div>
+        <h2>Welcome, <span id="userName">Employee</span></h2>
+        <div class="small">Email: <span id="userEmail"></span></div>
+      </div>
+      <div>
+        <button id="logoutBtn" class="logout">Logout</button>
+      </div>
+    </div>
+
+    <hr/>
+
+    <section>
+      <h3>Your Salary History</h3>
+      <div style="margin-top:8px;">
+        <label class="small">Filter by date range</label><br/>
+        <input type="date" id="fromDate"> to <input type="date" id="toDate">
+        <button id="applyFilterBtn">Apply</button>
+        <button id="clearFilterBtn">Clear</button>
+      </div>
+
+      <div id="loading">Loading...</div>
+      <table class="salary-table" id="employeeSalaryTable" style="margin-top:12px;">
+        <thead>
+          <tr>
+            <th>ID</th><th>Type</th><th>Gross/Amount</th><th>Paid On</th><th>Method</th><th>Period</th><th>Remarks / Breakdown</th>
+          </tr>
+        </thead>
+        <tbody id="employeeSalaryBody"></tbody>
+      </table>
+
+      <div id="noRecords">No salary records found.</div>
+    </section>
+  </div>
+
+  <script type="module" src="js/employee.js"></script>
+
+</body>
+</html>

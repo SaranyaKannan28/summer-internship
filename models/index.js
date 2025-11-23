@@ -1,6 +1,8 @@
 import sequelize from '../config/db.js';
 import Salary from './salary.js';
 import User from './user.js';
+User.hasMany(Salary, { foreignKey: "userId" });
+Salary.belongsTo(User, { foreignKey: "userId" });
 
 const initModels = async () => {
   try {
