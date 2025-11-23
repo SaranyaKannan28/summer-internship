@@ -1,14 +1,31 @@
+import {
+    fetchSalaries,
+    createSalary,
+    updateSalaryAPI,
+    deleteSalaryAPI,
+    fetchProfile
+} from "./common.js";
+
+
+
+// =========================
 // Global variables
+// =========================
 let isEditMode = false;
 let allSalaries = [];
 
+// =========================
 // Initialize page
+// =========================
 document.addEventListener('DOMContentLoaded', () => {
     loadSalaries();
     initializeForm();
+    initializeModalCloser();
 });
- 
+
+// =========================
 // Initialize form submission
+// =========================
 const initializeForm = () => {
     const form = document.getElementById('salaryForm');
     if (form) {
@@ -16,7 +33,9 @@ const initializeForm = () => {
     }
 };
 
-// Handle form submission
+// =========================
+// Handle form submit
+// =========================
 const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -46,11 +65,13 @@ const handleFormSubmit = async (e) => {
         resetForm();
         loadSalaries();
     } catch (error) {
-        showAlert('error', error.message);
+        showAlert('error', error.message || 'Error occurred');
     }
 };
 
-// Load all salaries
+// =========================
+// Load salaries
+// =========================
 const loadSalaries = async () => {
     showLoading('loadingState', true);
     document.getElementById('tableWrapper').style.display = 'none';
@@ -67,7 +88,9 @@ const loadSalaries = async () => {
     }
 };
 
-// Display salaries in table
+// =========================
+// Display salaries
+// =========================
 const displaySalaries = (salaries) => {
     const tbody = document.getElementById('salaryTableBody');
 
@@ -79,10 +102,12 @@ const displaySalaries = (salaries) => {
     showEmptyState(false);
     document.getElementById('tableWrapper').style.display = 'block';
 
-    tbody.innerHTML = salaries.map(salary => `
+    tbody.innerHTML = salaries
+        .map(
+            (salary) => `
         <tr>
             <td>${salary.id}</td>
-            <td><span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">${salary.type}</span></td>
+            <td><span class="tag">${salary.type}</span></td>
             <td><strong>${formatCurrency(salary.amount)}</strong></td>
             <td>${salary.paidTo}</td>
             <td>${formatDate(salary.paidOn)}</td>
@@ -90,28 +115,40 @@ const displaySalaries = (salaries) => {
             <td>${formatDate(salary.startDate)} - ${formatDate(salary.endDate)}</td>
             <td>${salary.remarks || '-'}</td>
             <td>
-                <div class="actions">
-                    <button class="btn btn-edit" onclick="editSalary(${salary.id})">Edit</button>
-                    <button class="btn btn-delete" onclick="deleteSalary(${salary.id})">Delete</button>
-                </div>
+                <button class="btn btn-edit" onclick="editSalary(${salary.id})">Edit</button>
+                <button class="btn btn-delete" onclick="deleteSalary(${salary.id})">Delete</button>
             </td>
         </tr>
-    `).join('');
+    `
+        )
+        .join('');
 };
 
-// Open modal for adding
+// =========================
+// Modal controls
+// =========================
 const openModal = () => {
     resetForm();
     document.getElementById('salaryModal').classList.add('active');
 };
 
-// Close modal
 const closeModal = () => {
     document.getElementById('salaryModal').classList.remove('active');
     resetForm();
 };
 
-// Edit salary
+const initializeModalCloser = () => {
+    const modal = document.getElementById('salaryModal');
+    if (!modal) return;
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+};
+
+// =========================
+// Edit Salary
+// =========================
 const editSalary = async (id) => {
     try {
         const salary = await fetchSalaryById(id);
@@ -136,11 +173,11 @@ const editSalary = async (id) => {
     }
 };
 
-// Delete salary
+// =========================
+// Delete Salary
+// =========================
 const deleteSalary = async (id) => {
-    if (!confirm('Are you sure you want to delete this salary record?')) {
-        return;
-    }
+    if (!confirm('Are you sure you want to delete this salary record?')) return;
 
     try {
         await deleteSalaryAPI(id);
@@ -151,68 +188,105 @@ const deleteSalary = async (id) => {
     }
 };
 
-// Apply filters
+// =========================
+// Apply Filters
+// =========================
+// Replace the existing applyFilters() with this
 const applyFilters = () => {
     const startDate = document.getElementById('filterStartDate').value;
     const endDate = document.getElementById('filterEndDate').value;
     const type = document.getElementById('filterType').value;
-    const employee = document.getElementById('filterEmployee').value.toLowerCase();
+    const employee = document.getElementById('filterEmployee').value.trim().toLowerCase();
 
     let filtered = [...allSalaries];
 
-    // Filter by date range
     if (startDate && endDate) {
-        filtered = filtered.filter(s => {
+        filtered = filtered.filter((s) => {
             const paidDate = new Date(s.paidOn);
             return paidDate >= new Date(startDate) && paidDate <= new Date(endDate);
         });
     }
 
-    // Filter by type
-    if (type) {
-        filtered = filtered.filter(s => s.type === type);
-    }
+    if (type) filtered = filtered.filter((s) => s.type === type);
 
-    // Filter by employee
     if (employee) {
-        filtered = filtered.filter(s => s.paidTo.toLowerCase().includes(employee));
+        // If user enters a numeric value (id), filter by userId
+        const maybeId = Number(employee);
+        if (!Number.isNaN(maybeId) && String(maybeId) === employee) {
+            filtered = filtered.filter((s) => Number(s.userId) === maybeId);
+        } else {
+            // otherwise fallback to name search on paidTo
+            filtered = filtered.filter((s) =>
+                s.paidTo && s.paidTo.toLowerCase().includes(employee)
+            );
+        }
     }
 
     displaySalaries(filtered);
 };
 
-// Clear filters
 const clearFilters = () => {
     document.getElementById('filterStartDate').value = '';
     document.getElementById('filterEndDate').value = '';
     document.getElementById('filterType').value = '';
     document.getElementById('filterEmployee').value = '';
+
     displaySalaries(allSalaries);
 };
 
-// Reset form
+// =========================
+// Reset Form
+// =========================
 const resetForm = () => {
     document.getElementById('salaryForm').reset();
     document.getElementById('salaryId').value = '';
     isEditMode = false;
+
     document.getElementById('modalTitle').textContent = 'Add New Salary';
     document.getElementById('submitBtn').textContent = 'Add Salary';
 };
 
-// Show empty state
+// =========================
+// Empty State
+// =========================
 const showEmptyState = (show) => {
     document.getElementById('emptyState').style.display = show ? 'block' : 'none';
     document.getElementById('tableWrapper').style.display = show ? 'none' : 'block';
 };
 
-// Close modal when clicking outside
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('salaryModal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
-});
+// =========================
+// Loading State
+// =========================
+function showLoading(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'block' : 'none';
+}
+
+// =========================
+// Utility Functions
+// =========================
+const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : '-');
+const formatCurrency = (amt) =>
+    amt ? `₹${amt.toLocaleString('en-IN')}` : '₹0';
+
+// =========================
+// ⭐ ALERT SYSTEM (Working)
+// =========================
+function showAlert(type, message) {
+    const alert = document.createElement('div');
+    alert.className = `custom-alert ${type}`;
+    alert.innerHTML = `<span>${message}</span>`;
+
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+        alert.classList.add('hide');
+        setTimeout(() => alert.remove(), 300);
+    }, 2000);
+}
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.editSalary = editSalary;
+window.deleteSalary = deleteSalary;
+window.applyFilters = applyFilters;
+window.clearFilters = clearFilters;

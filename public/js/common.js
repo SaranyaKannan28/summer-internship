@@ -44,6 +44,7 @@ export const fetchSalaries = async (filters = {}) => {
     const params = new URLSearchParams();
     if (filters.startDate) params.append("startDate", filters.startDate);
     if (filters.endDate) params.append("endDate", filters.endDate);
+    if (filters.userId) params.append("userId", filters.userId); // optional admin filtering
 
     if (params.toString()) url += `?${params.toString()}`;
 
@@ -57,7 +58,7 @@ export const fetchSalaries = async (filters = {}) => {
 
     if (!response.ok) {
       const e = await response.json().catch(() => ({ error: "Failed to load" }));
-      throw new Error(e.error);
+      throw new Error(e.error || 'Failed to load salaries');
     }
 
     return await response.json();
@@ -66,6 +67,7 @@ export const fetchSalaries = async (filters = {}) => {
     throw error;
   }
 };
+
 
 // -------------------------------------------------------
 // SALARY: Create Salary
